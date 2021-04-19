@@ -8,11 +8,11 @@ class BaseController extends Controller
 {
     public function sendResponse($success, $message, $result, $status){
         $response = collect([
-            'success'    => $success,
+            // 'success'    => $success,
             'message'   => $message,
         ]);
 
-        if (!collect($result)->has('current_page')) { $result = ['data' => $result]; }
+        // if (!collect($result)->has('current_page')) { $result = ['data' => $result]; }
 
         $combined = $response->union($result);
 
