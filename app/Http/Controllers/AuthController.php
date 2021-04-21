@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\BaseController as BaseController;
-use App\Models\User;
 use Validator;
+
 use Carbon\Carbon;
+use App\Models\User;
+
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BaseController as BaseController;
 
 class AuthController extends BaseController
 {
@@ -54,13 +57,51 @@ class AuthController extends BaseController
             'status' => 1
         ];
 
-        if (auth()->attempt($data)) {
-            $tokenResult = auth()->user()->createToken('Personal Access Client');
-            $user = User::find($tokenResult->token->user_id);
+        $tokenResult = $this->createToken($request);
+        if (!$tokenResult) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
 
+        $user = User::find($tokenResult->token->user_id);
+        if ($user) {
             return $this->sendResponse(true, 'Acceso Concedido', ['user' => $user, 'access_token' => $tokenResult->accessToken], 200);
         }
 
         return $this->sendResponse(false, 'Acceso Denegado', null, 200);
     }
+
+    function createToken(Request $request)
+    {
+        $credentials = request(['email', 'password']);
+
+        if (!Auth::attempt($credentials)) {
+            return false;
+        }
+
+        $user = $request->user();
+        $tokenResult = $user->createToken('Personal Access Token');
+        $token = $tokenResult->token;
+
+        if ($request->remember_me) {
+            $token->expires_at = Carbon::now()->addWeeks(1);
+        }
+
+        $token->save();
+
+        return $tokenResult;
+    }
+
+    public function user(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json($user);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->json(['success' => true, 'message' => 'Session finalizada correctamente']);
+    }
+
 }
