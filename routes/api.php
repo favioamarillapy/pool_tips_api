@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TipsController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -30,3 +31,5 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', [AuthController::class, 'logout']);    
     });
 });
+
+Route::resource('tips', TipsController::class);
