@@ -51,12 +51,12 @@ class TipsController extends BaseController
      */
     public function store(Request $request)
     {
-        $name = $request->get('name');
+        $title = $request->get('title');
         $description = $request->get('description');
         $active = $request->get('active');
 
         $tip = new Tips();
-        $tip->name = $name;
+        $tip->title = $title;
         $tip->description = $description;
         $tip->active = $active ? $active : 1;
 
@@ -103,12 +103,12 @@ class TipsController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $name = $request->get('name');
+        $title = $request->get('title');
         $description = $request->get('description');
         $active = $request->get('active');
 
         $tip = Tips::find($id);
-        $tip->name = $name;
+        $tip->title = $title;
         $tip->description = $description;
         $tip->active = $active ? $active : 1;
 

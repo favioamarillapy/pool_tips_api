@@ -15,10 +15,10 @@ class CreateTipsTable extends Migration
     {
         Schema::create('tips', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('title');
             $table->text('description');
             $table->string('image');
-            $table->tinyInt('active')->default(1);
+            $table->tinyInteger('active')->default(1);
             $table->timestamps();
         });
     }
