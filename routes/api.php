@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TipsController;
 use App\Http\Controllers\UserController;
 
@@ -32,4 +33,5 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
+Route::resource('categories', CategoryController::class);
 Route::resource('tips', TipsController::class);
