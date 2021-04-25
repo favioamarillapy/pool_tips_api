@@ -20,6 +20,11 @@ class TipsController extends BaseController
 
             $query = Tips::select('*');
 
+            $category = $request->get('category');
+            if ($category) {
+                $query->where('category', '=', $category);
+            }
+
             $list = $request->get('list');
             $listBoolean = filter_var($list, FILTER_VALIDATE_BOOLEAN);
     
