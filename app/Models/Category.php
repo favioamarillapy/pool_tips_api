@@ -10,4 +10,10 @@ class Category extends Model
     use HasFactory;
 
     protected $table = 'category';
+
+    public function tips()
+    {
+        return $this->hasMany(Tips::class, 'category', 'id');
+    }
+
 }

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\Pool;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController as BaseController;
 
-class CategoryController extends BaseController
+class PoolController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -18,15 +18,20 @@ class CategoryController extends BaseController
     {
         if ($request->expectsJson()) {
 
-            $query = Category::select('*')->withCount(['tips']);
+            $query = Pool::select('*');
+
+            $user = $request->get('user');
+            if ($user) {
+                $query->where('user', '=', $user);
+            }
 
             $list = $request->get('list');
             $listBoolean = filter_var($list, FILTER_VALIDATE_BOOLEAN);
     
             $action = $listBoolean ? 'get' : 'paginate';
-            $categories = $query->$action();
+            $pool = $query->$action();
 
-            return $this->sendResponse(true, 'Listado obtenido exitosamente', $categories, 200);
+            return $this->sendResponse(true, 'Listado obtenido exitosamente', $pool, 200);
 
         }
 
@@ -51,18 +56,21 @@ class CategoryController extends BaseController
      */
     public function store(Request $request)
     {
-        $name = $request->get('name');
-        $active = $request->get('active');
+        $user = $request->get('user');
+        $cloro = $request->get('cloro');
+        $ph = $request->get('ph');
 
-        $category = new Category();
-        $category->name = $name;
-        $category->active = $active ? $active : 1;
+        $pool = new Pool();
+        $pool->user = $user;
+        $pool->cloro = $cloro;
+        $pool->ph = $ph ? $ph : 1;
 
-        if ($category->save()) {
-            return $this->sendResponse(true, 'La categoria ha sido registrada correctamente', $category, 201);
+        if ($pool->save()) {
+
+            return $this->sendResponse(true, 'Datos registrados correctamente', $pool, 201);
         }
 
-        return $this->sendResponse(false, 'Ha ocurrido un problema al intentar registrar la categoria', null, 500);
+        return $this->sendResponse(false, 'Ha ocurrido un problema al intentar registrar', null, 500);
     }
 
     /**
@@ -96,18 +104,20 @@ class CategoryController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $title = $request->get('title');
-        $active = $request->get('active');
+        $user = $request->get('user');
+        $cloro = $request->get('cloro');
+        $ph = $request->get('ph');
 
-        $category = Category::find($id);
-        $category->title = $title;
-        $category->active = $active ? $active : 1;
+        $pool = Pool::find($id);
+        $pool->user = $user;
+        $pool->cloro = $cloro;
+        $pool->ph = $ph ? $ph : 1;
 
-        if ($category->save()) {
-            return $this->sendResponse(true, 'La categoria ha sido actualizada correctamente', $category, 200);
+        if ($pool->save()) {
+            return $this->sendResponse(true, 'Datos actualizados correctamente', $pool, 200);
         }
 
-        return $this->sendResponse(false, 'Ha ocurrido un problema al intentar actualizar la categoria', null, 500);
+        return $this->sendResponse(false, 'Ha ocurrido un problema al intentar actualizar', null, 500);
     }
 
     /**
