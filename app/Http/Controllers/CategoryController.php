@@ -6,6 +6,7 @@ use App\Models\Category;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController as BaseController;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends BaseController
 {
@@ -17,7 +18,6 @@ class CategoryController extends BaseController
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
-
             $query = Category::select('*')->withCount(['tips']);
 
             $list = $request->get('list');
@@ -27,7 +27,6 @@ class CategoryController extends BaseController
             $categories = $query->$action();
 
             return $this->sendResponse(true, 'Listado obtenido exitosamente', $categories, 200);
-
         }
 
         return $this->sendResponse(false, 'Metodo no permitido', null, 400);
@@ -52,11 +51,9 @@ class CategoryController extends BaseController
     public function store(Request $request)
     {
         $name = $request->get('name');
-        $active = $request->get('active');
 
         $category = new Category();
         $category->name = $name;
-        $category->active = $active ? $active : 1;
 
         if ($category->save()) {
             return $this->sendResponse(true, 'La categoria ha sido registrada correctamente', $category, 201);
@@ -73,7 +70,13 @@ class CategoryController extends BaseController
      */
     public function show($id)
     {
-        //
+        $category = Category::find($id);
+
+        if ($category) {
+            return $this->sendResponse(true, 'La categoria ha sido actualizada correctamente', $category, 200);
+        } else {
+            return $this->sendResponse(true, 'La categoria no existe', $category, 200);
+        }
     }
 
     /**
@@ -96,12 +99,10 @@ class CategoryController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $title = $request->get('title');
-        $active = $request->get('active');
+        $name = $request->get('name');
 
         $category = Category::find($id);
-        $category->title = $title;
-        $category->active = $active ? $active : 1;
+        $category->name = $name;
 
         if ($category->save()) {
             return $this->sendResponse(true, 'La categoria ha sido actualizada correctamente', $category, 200);
