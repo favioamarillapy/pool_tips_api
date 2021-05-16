@@ -106,7 +106,6 @@ class CategoryController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        return response()->json($request->all());
         $name = $request->get('name');
         $image = $request->file('file');
 
@@ -136,16 +135,5 @@ class CategoryController extends BaseController
     public function destroy($id)
     {
         //
-    }
-
-    public function file($filename)
-    {
-        $isset = Storage::disk('category')->exists($filename);
-        if ($isset) {
-            $file = Storage::disk('category')->get($filename);
-            return new Response($file);
-        }
-        
-        return $this->sendResponse(false, 'La imagen no existe', null, 200);
     }
 }
