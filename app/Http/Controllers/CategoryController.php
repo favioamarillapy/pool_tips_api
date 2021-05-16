@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\BaseController as BaseController;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,13 +20,13 @@ class CategoryController extends BaseController
     {
         if ($request->expectsJson()) {
             $query = Category::select('*')->withCount(['tips']);
-
+            
             $list = $request->get('list');
             $listBoolean = filter_var($list, FILTER_VALIDATE_BOOLEAN);
-    
+            
             $action = $listBoolean ? 'get' : 'paginate';
             $categories = $query->$action();
-
+            
             return $this->sendResponse(true, 'Listado obtenido exitosamente', $categories, 200);
         }
 
@@ -51,9 +52,15 @@ class CategoryController extends BaseController
     public function store(Request $request)
     {
         $name = $request->get('name');
+        $image = $request->file('file');
 
         $category = new Category();
         $category->name = $name;
+        if ($image) {
+            $image_name = time().'.'.$image->getClientOriginalExtension();
+            Storage::disk('category')->put($image_name, \File::get($image));
+            $category->image = $image_name;
+        }
 
         if ($category->save()) {
             return $this->sendResponse(true, 'La categoria ha sido registrada correctamente', $category, 201);
@@ -73,7 +80,7 @@ class CategoryController extends BaseController
         $category = Category::find($id);
 
         if ($category) {
-            return $this->sendResponse(true, 'La categoria ha sido actualizada correctamente', $category, 200);
+            return $this->sendResponse(true, 'Registro encontrado', $category, 200);
         } else {
             return $this->sendResponse(true, 'La categoria no existe', $category, 200);
         }
@@ -99,10 +106,19 @@ class CategoryController extends BaseController
      */
     public function update(Request $request, $id)
     {
+        return response()->json($request->all());
         $name = $request->get('name');
+        $image = $request->file('file');
 
         $category = Category::find($id);
         $category->name = $name;
+
+        if ($image) {
+            $image_name = time().'.'.$image->getClientOriginalExtension();
+            Storage::disk('category')->put($image_name, \File::get($image));
+            $category->image = $image_name;
+        }
+
 
         if ($category->save()) {
             return $this->sendResponse(true, 'La categoria ha sido actualizada correctamente', $category, 200);
@@ -120,5 +136,16 @@ class CategoryController extends BaseController
     public function destroy($id)
     {
         //
+    }
+
+    public function file($filename)
+    {
+        $isset = Storage::disk('category')->exists($filename);
+        if ($isset) {
+            $file = Storage::disk('category')->get($filename);
+            return new Response($file);
+        }
+        
+        return $this->sendResponse(false, 'La imagen no existe', null, 200);
     }
 }

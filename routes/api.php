@@ -25,11 +25,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('signin', [AuthController::class, 'signin']);
-    Route::post('signup', [AuthController::class, 'signup']);  
+    Route::post('signup', [AuthController::class, 'signup']);
     
-    Route::group(['middleware' => 'auth:api'], function() {
-        Route::get('user', [AuthController::class, 'user']);    
-        Route::post('logout', [AuthController::class, 'logout']);    
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('user', [AuthController::class, 'user']);
+        Route::post('logout', [AuthController::class, 'logout']);
     });
 });
 

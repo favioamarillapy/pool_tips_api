@@ -51,6 +51,12 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
         ],
+        'category' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/category'), // ahi creo que te tiene que crear dentro del public oima, voy a probar
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
 
     ],
 
@@ -66,7 +72,7 @@ return [
     */
 
     'links' => [
-        public_path('storage') => storage_path('app/public'),
+        public_path('storage') => storage_path('app/public')
     ],
 
 ];

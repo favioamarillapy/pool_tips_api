@@ -17,8 +17,8 @@ class TipsController extends BaseController
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
-
-            $query = Tips::select('*');
+            $query = Tips::select(['tips.*', 'category.name'])
+            ->join('category', 'category.id', '=', 'tips.category');
 
             $category = $request->get('category');
             if ($category) {
@@ -32,7 +32,6 @@ class TipsController extends BaseController
             $tips = $query->$action();
 
             return $this->sendResponse(true, 'Listado obtenido exitosamente', $tips, 200);
-
         }
 
         return $this->sendResponse(false, 'Metodo no permitido', null, 400);
@@ -58,23 +57,22 @@ class TipsController extends BaseController
     {
         $title = $request->get('title');
         $description = $request->get('description');
+        $category = $request->get('category');
+        $withReminder = $request->get('withReminder');
         $active = $request->get('active');
 
         $tip = new Tips();
         $tip->title = $title;
         $tip->description = $description;
-        $tip->active = $active ? $active : 1;
+        $tip->category = $category;
+        $tip->withReminder = $withReminder;
+        $tip->active = true;
 
         if ($tip->save()) {
-
-            if ($request->hasFile('image')) {
-            
-            }
-
-            return $this->sendResponse(true, 'El consejo ha sido registrado correctamente', $tip, 201);
+            return $this->sendResponse(true, 'El tip ha sido registrado correctamente', $tip, 201);
         }
 
-        return $this->sendResponse(false, 'Ha ocurrido un problema al intentar registrar el consejo', null, 500);
+        return $this->sendResponse(false, 'Ha ocurrido un problema al intentar registrar el tip', null, 500);
     }
 
     /**
@@ -85,7 +83,13 @@ class TipsController extends BaseController
      */
     public function show($id)
     {
-        //
+        $tip = Tips::find($id);
+
+        if ($tip) {
+            return $this->sendResponse(true, 'La categoria ha sido actualizada correctamente', $tip, 200);
+        } else {
+            return $this->sendResponse(true, 'La categoria no existe', $tip, 200);
+        }
     }
 
     /**
@@ -110,19 +114,18 @@ class TipsController extends BaseController
     {
         $title = $request->get('title');
         $description = $request->get('description');
+        $category = $request->get('category');
+        $withReminder = $request->get('withReminder');
         $active = $request->get('active');
 
         $tip = Tips::find($id);
         $tip->title = $title;
         $tip->description = $description;
-        $tip->active = $active ? $active : 1;
+        $tip->category = $category;
+        $tip->withReminder = $withReminder;
+        $tip->active = true;
 
         if ($tip->save()) {
-
-            if ($request->hasFile('image')) {
-            
-            }
-
             return $this->sendResponse(true, 'El consejo ha sido actualizado correctamente', $tip, 200);
         }
 
