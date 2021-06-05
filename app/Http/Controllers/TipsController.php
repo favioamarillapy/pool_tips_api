@@ -17,8 +17,7 @@ class TipsController extends BaseController
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
-            $query = Tips::select(['tips.*', 'category.name'])
-            ->join('category', 'category.id', '=', 'tips.category');
+            $query = Tips::select(['*'])->with(['category']);
 
             $category = $request->get('category');
             if ($category) {

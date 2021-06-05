@@ -10,6 +10,7 @@ class Category extends Model
     use HasFactory;
 
     protected $table = 'category';
+    protected $perPage = 10;
 
     public function tips()
     {

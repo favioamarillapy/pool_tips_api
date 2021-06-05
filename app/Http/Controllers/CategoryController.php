@@ -136,15 +136,4 @@ class CategoryController extends BaseController
     {
         //
     }
-
-    public function file($filename)
-    {
-        $isset = Storage::disk('category')->exists($filename);
-        if ($isset) {
-            $file = Storage::disk('category')->get($filename);
-            return new Response($file);
-        }
-        
-        return $this->sendResponse(false, 'La imagen no existe', null, 200);
-    }
 }
