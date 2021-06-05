@@ -106,7 +106,6 @@ class CategoryController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        return response()->json($request->all());
         $name = $request->get('name');
         $image = $request->file('file');
 
