@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TipsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PoolController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,3 +36,7 @@ Route::group(['prefix' => 'auth'], function () {
 
 Route::resource('categories', CategoryController::class);
 Route::resource('tips', TipsController::class);
+
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::resource('pool', PoolController::class);
+});

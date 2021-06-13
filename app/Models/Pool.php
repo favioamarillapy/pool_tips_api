@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Pool extends Model
 {
     use HasFactory;
+
+    protected $table = 'pool';
 }

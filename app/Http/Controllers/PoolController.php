@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pool;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BaseController as BaseController;
 
 class PoolController extends BaseController
@@ -23,6 +24,11 @@ class PoolController extends BaseController
             $user = $request->get('user');
             if ($user) {
                 $query->where('user', '=', $user);
+            } else if ($request->user()) {
+                $user = $request->user();
+                if ($user) {
+                    $query->where('user', '=', $user->id);
+                }
             }
 
             $list = $request->get('list');
