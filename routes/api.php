@@ -19,11 +19,6 @@ use App\Http\Controllers\PoolController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-
 Route::group(['prefix' => 'auth'], function () {
     Route::post('signin', [AuthController::class, 'signin']);
     Route::post('signup', [AuthController::class, 'signup']);
@@ -39,4 +34,6 @@ Route::resource('tips', TipsController::class);
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('pool', PoolController::class);
+    Route::put('user/{id}', [AuthController::class, 'update']);
+    Route::put('user/{id}/upload-image', [AuthController::class, 'uploadImage']);
 });

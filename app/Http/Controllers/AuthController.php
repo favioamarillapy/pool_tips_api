@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\BaseController as BaseController;
 
 class AuthController extends BaseController
@@ -96,6 +97,57 @@ class AuthController extends BaseController
         $user = $request->user();
 
         return response()->json($user);
+    }
+
+    public function update(Request $request, $id) {
+
+        $user = $request->user();
+        $name = $request->name;
+        $email = $request->email;
+        $password = $request->password;
+        $password_confirmation = $request->password_confirmation;
+
+        if ($user) {
+            $user->name = $name ? $name : $user->name;
+            $user->email = $email ? $email : $user->email;
+
+            if ($password && $password == $password_confirmation) {
+                $user->password = bcrypt($password);
+            }
+
+            if ($user->save()) {
+                $refreshToken = $user->createToken('Personal Access Token')->accessToken;
+
+                $data = [
+                    'user' => $user,
+                    'refreshToken' => $refreshToken
+                ];
+
+                return $this->sendResponse(true, 'Usuario actualizado correctamente', $data, 200);
+            }
+        }
+
+        return $this->sendResponse(false, 'No se encontro el usuario solicitado', null, 404);
+    }
+
+    public function uploadImage(Request $request, $id) {
+        $image = $request->file('image');
+
+        $user = $request->user();
+
+        if ($image) {
+            $image_name = time().'.'.$image->getClientOriginalExtension();
+            Storage::disk('user')->put("$id/".$image_name, \File::get($image));
+            $user->image = $image_name;
+
+            if ($user->save()) {
+                return $this->sendResponse(true, 'Imagen actualizada correctamente', $user, 200);
+            }
+
+            return $this->sendResponse(false, 'Ha ocurrido un problema al intentar actualizar la imagen del usuario', null, 500);
+        }
+
+        return $this->sendResponse(false, 'Debe subir una imagen', null, 400);
     }
 
     public function logout(Request $request)
