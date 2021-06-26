@@ -37,3 +37,9 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::put('user/{id}', [AuthController::class, 'update']);
     Route::put('user/{id}/upload-image', [AuthController::class, 'uploadImage']);
 });
+
+Route::group(['prefix' => 'graphic'], function () {
+    Route::post('day', [PoolController::class, 'graphicDay']);
+    Route::post('week', [PoolController::class, 'graphicWeek']);
+    Route::post('month', [PoolController::class, 'graphicMonth']);
+});
