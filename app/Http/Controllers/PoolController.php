@@ -178,7 +178,7 @@ class PoolController extends BaseController
                     when DAYOFWEEK(created_at) = 5 then 'Viernes' 
                     when DAYOFWEEK(created_at) = 7 then 'Sabado' 
                     end"))
-        ->groupBy(DB::raw('DAYOFWEEK(created_at)'))
+        ->groupBy('created_at')
         ->orderBy(DB::raw('DAYOFWEEK(created_at)'))
         ->get();
 
