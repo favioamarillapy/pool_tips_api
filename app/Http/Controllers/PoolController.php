@@ -140,12 +140,12 @@ class PoolController extends BaseController
         $today = date("Y-m-d");
 
         $query = Pool::select(DB::raw('
-                                        coalesce(sum(ph) / count(id)) as ph,  
-                                        coalesce(sum(temperature) / count(id)) as temperature,
+                                        cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) as ph,  
+                                        round(coalesce(sum(temperature) / count(id), 0)) as temperature,
                                         case 
-                                        when coalesce(round(sum(ph) / count(id)), 0) <= 6 then 1
-                                        when coalesce(round(sum(ph) / count(id)), 0) = 7 then 50
-                                        when coalesce(round(sum(ph) / count(id)), 0) >= 8 then 100
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) < 7.2 then 1
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) >= 7.2 and cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) <= 7.4 then 50
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) > 7.4 then 100
                                         end as cloro'))
         ->whereDate('created_at', $today)
         ->first();
@@ -174,12 +174,12 @@ class PoolController extends BaseController
                                         when DAYOFWEEK(created_at) = 6 then 'Viernes' 
                                         when DAYOFWEEK(created_at) = 7 then 'Sabado' 
                                         end as dia,
-                                        coalesce(sum(ph) / count(id), 0) as ph , 
-                                        sum(temperature) / count(id) as temperature,
+                                        cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) as ph, 
+                                        round(coalesce(sum(temperature) / count(id), 0)) as temperature,
                                         case 
-                                        when coalesce(round(sum(ph) / count(id)), 0) <= 6 then 1
-                                        when coalesce(round(sum(ph) / count(id)), 0) = 7 then 50
-                                        when coalesce(round(sum(ph) / count(id)), 0) >= 8 then 100
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) < 7.2 then 1
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) >= 7.2 and cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) <= 7.4 then 50
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) > 7.4 then 100
                                         end as cloro"))
         ->whereMonth('created_at', $today)
         ->groupBy(DB::raw("case 
@@ -249,12 +249,12 @@ class PoolController extends BaseController
                                         when MONTH(created_at) = 11 then 'Noviembre' 
                                         when MONTH(created_at) = 12 then 'Diciembre'
                                         end as mes,
-                                        coalesce(sum(ph) / count(id), 0) as ph , 
-                                        sum(temperature) / count(id) as temperature,
+                                        cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) as ph, 
+                                        round(coalesce(sum(temperature) / count(id), 0)) as temperature,
                                         case 
-                                        when coalesce(round(sum(ph) / count(id)), 0) <= 6 then 1
-                                        when coalesce(round(sum(ph) / count(id)), 0) = 7 then 50
-                                        when coalesce(round(sum(ph) / count(id)), 0) >= 8 then 100
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) < 7.2 then 1
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) >= 7.2 and cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) <= 7.4 then 50
+                                        when cast(coalesce(sum(ph) / count(id), 0) as decimal(5,1)) > 7.4 then 100
                                         end as cloro"))
         ->whereYear('created_at', $today)
         ->groupBy(DB::raw("case 
