@@ -214,7 +214,9 @@ class PoolController extends BaseController
     }
 
     public function graphicMonth()
-    {
+    { 
+        $today = date("Y");
+
         $query = Pool::select(DB::raw("case 
                                         when MONTH(created_at) = 1 then 'Enero' 
                                         when MONTH(created_at) = 2 then 'Febrero' 
@@ -227,23 +229,24 @@ class PoolController extends BaseController
                                         when MONTH(created_at) = 9 then 'Setiembre' 
                                         when MONTH(created_at) = 10 then 'Octubre' 
                                         when MONTH(created_at) = 11 then 'Noviembre' 
-                                        when MONTH(created_at) = 12 then 'Diciembre' 
+                                        when MONTH(created_at) = 12 then 'Diciembre'
                                         end as mes,
                                         coalesce(sum(ph) / count(id), 0) as ph , sum(temperature) / count(id) as temperature "))
+        ->whereYear('created_at', $today)
         ->groupBy(DB::raw("case 
-                    when MONTH(created_at) = 1 then 'Enero' 
-                    when MONTH(created_at) = 2 then 'Febrero' 
-                    when MONTH(created_at) = 3 then 'Marzo' 
-                    when MONTH(created_at) = 4 then 'Abril' 
-                    when MONTH(created_at) = 5 then 'Mayo' 
-                    when MONTH(created_at) = 6 then 'Junio' 
-                    when MONTH(created_at) = 7 then 'Julio' 
-                    when MONTH(created_at) = 8 then 'Agosto' 
-                    when MONTH(created_at) = 9 then 'Setiembre' 
-                    when MONTH(created_at) = 10 then 'Octubre' 
-                    when MONTH(created_at) = 11 then 'Noviembre' 
-                    when MONTH(created_at) = 12 then 'Diciembre' 
-                    end"))
+                            when MONTH(created_at) = 1 then 'Enero' 
+                            when MONTH(created_at) = 2 then 'Febrero' 
+                            when MONTH(created_at) = 3 then 'Marzo' 
+                            when MONTH(created_at) = 4 then 'Abril' 
+                            when MONTH(created_at) = 5 then 'Mayo' 
+                            when MONTH(created_at) = 6 then 'Junio' 
+                            when MONTH(created_at) = 7 then 'Julio' 
+                            when MONTH(created_at) = 8 then 'Agosto' 
+                            when MONTH(created_at) = 9 then 'Setiembre' 
+                            when MONTH(created_at) = 10 then 'Octubre' 
+                            when MONTH(created_at) = 11 then 'Noviembre' 
+                            when MONTH(created_at) = 12 then 'Diciembre' 
+                            end"))
         ->groupBy('created_at')
         ->orderBy(DB::raw('MONTH(created_at)'))
         ->get();
@@ -276,6 +279,6 @@ class PoolController extends BaseController
         $data->data = $graphic;
 
 
-        return $this->sendResponse(true, 'Datos obtenidos correctamente', $data, 200);
+        return $this->sendResponse(true, 'Datos obtenidos ada correctamente', $data, 200);
     }
 }
