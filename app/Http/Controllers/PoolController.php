@@ -139,14 +139,21 @@ class PoolController extends BaseController
     {
         $today = date("Y-m-d");
 
-        $query = Pool::select(DB::raw('coalesce(sum(ph) / count(id)) as ph,  coalesce(sum(temperature) / count(id)) as temperature'))
+        $query = Pool::select(DB::raw('
+                                        coalesce(sum(ph) / count(id)) as ph,  
+                                        coalesce(sum(temperature) / count(id)) as temperature,
+                                        case 
+                                        when coalesce(round(sum(ph) / count(id)), 0) <= 6 then 1
+                                        when coalesce(round(sum(ph) / count(id)), 0) = 7 then 50
+                                        when coalesce(round(sum(ph) / count(id)), 0) >= 8 then 100
+                                        end as cloro'))
         ->whereDate('created_at', $today)
         ->first();
 
 
         $graphic = new class {};
-        $graphic->labels = ['PH','Temperatura'];
-        $graphic->values = [$query->ph, $query->temperature];
+        $graphic->labels = ['PH','Temperatura', 'Cloro'];
+        $graphic->values = [$query->ph, $query->temperature, $query->cloro];
 
         $data = new class {};
         $data->data = $graphic;
@@ -167,7 +174,13 @@ class PoolController extends BaseController
                                         when DAYOFWEEK(created_at) = 6 then 'Viernes' 
                                         when DAYOFWEEK(created_at) = 7 then 'Sabado' 
                                         end as dia,
-                                        coalesce(sum(ph) / count(id), 0) as ph , sum(temperature) / count(id) as temperature "))
+                                        coalesce(sum(ph) / count(id), 0) as ph , 
+                                        sum(temperature) / count(id) as temperature,
+                                        case 
+                                        when coalesce(round(sum(ph) / count(id)), 0) <= 6 then 1
+                                        when coalesce(round(sum(ph) / count(id)), 0) = 7 then 50
+                                        when coalesce(round(sum(ph) / count(id)), 0) >= 8 then 100
+                                        end as cloro"))
         ->whereMonth('created_at', $today)
         ->groupBy(DB::raw("case 
                     when DAYOFWEEK(created_at) = 1 then 'Domingo' 
@@ -187,13 +200,13 @@ class PoolController extends BaseController
         $graphic->values = array();
         $valuesP = array();
         $valuesT = array();
+        $valuesC = array();
 
         foreach ($query as $value) {
             array_push($graphic->labels, $value->dia);
-
             array_push($valuesP, $value->ph);
-        
             array_push($valuesT, $value->temperature);
+            array_push($valuesC, $value->cloro);
         }
         
         $valuesData = new class {};
@@ -206,11 +219,16 @@ class PoolController extends BaseController
         $valuesData->data = $valuesT;
         array_push($graphic->values, $valuesData);
 
+        $valuesData = new class {};
+        $valuesData->label = 'Cloro';
+        $valuesData->data = $valuesC;
+        array_push($graphic->values, $valuesData);
+
         $data = new class {};
         $data->data = $graphic;
 
 
-        return $this->sendResponse(true, 'Datos obtenidos correctamente', $data, 200);
+        return $this->sendResponse(true, 'Datos obtenidos ada correctamente', $data, 200);
     }
 
     public function graphicMonth()
@@ -231,7 +249,13 @@ class PoolController extends BaseController
                                         when MONTH(created_at) = 11 then 'Noviembre' 
                                         when MONTH(created_at) = 12 then 'Diciembre'
                                         end as mes,
-                                        coalesce(sum(ph) / count(id), 0) as ph , sum(temperature) / count(id) as temperature "))
+                                        coalesce(sum(ph) / count(id), 0) as ph , 
+                                        sum(temperature) / count(id) as temperature,
+                                        case 
+                                        when coalesce(round(sum(ph) / count(id)), 0) <= 6 then 1
+                                        when coalesce(round(sum(ph) / count(id)), 0) = 7 then 50
+                                        when coalesce(round(sum(ph) / count(id)), 0) >= 8 then 100
+                                        end as cloro"))
         ->whereYear('created_at', $today)
         ->groupBy(DB::raw("case 
                             when MONTH(created_at) = 1 then 'Enero' 
@@ -256,13 +280,13 @@ class PoolController extends BaseController
         $graphic->values = array();
         $valuesP = array();
         $valuesT = array();
+        $valuesC = array();
 
         foreach ($query as $value) {
             array_push($graphic->labels, $value->mes);
-
             array_push($valuesP, $value->ph);
-        
             array_push($valuesT, $value->temperature);
+            array_push($valuesC, $value->cloro);
         }
         
         $valuesData = new class {};
@@ -273,6 +297,11 @@ class PoolController extends BaseController
         $valuesData = new class {};
         $valuesData->label = 'Temperatura';
         $valuesData->data = $valuesT;
+        array_push($graphic->values, $valuesData);
+
+        $valuesData = new class {};
+        $valuesData->label = 'Cloro';
+        $valuesData->data = $valuesC;
         array_push($graphic->values, $valuesData);
 
         $data = new class {};
